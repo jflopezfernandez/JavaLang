@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_javalang" default="compile.module.javalang">
+  <dirname property="module.javalang.basedir" file="${ant.file.module_javalang}"/>
+  
+  <property name="module.jdk.home.javalang" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.javalang" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.javalang" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.javalang" value="-encoding UTF-8 -source 10 -target 10 ${compiler.args}"/>
+  
+  <property name="javalang.output.dir" value="${module.javalang.basedir}/out/production/JavaLang"/>
+  <property name="javalang.testoutput.dir" value="${module.javalang.basedir}/out/test/JavaLang"/>
+  
+  <path id="javalang.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="javalang.module.production.classpath">
+    <path refid="${module.jdk.classpath.javalang}"/>
+  </path>
+  
+  <path id="javalang.runtime.production.module.classpath">
+    <pathelement location="${javalang.output.dir}"/>
+  </path>
+  
+  <path id="javalang.module.classpath">
+    <path refid="${module.jdk.classpath.javalang}"/>
+    <pathelement location="${javalang.output.dir}"/>
+  </path>
+  
+  <path id="javalang.runtime.module.classpath">
+    <pathelement location="${javalang.testoutput.dir}"/>
+    <pathelement location="${javalang.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.javalang">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.javalang">
+    <patternset refid="excluded.from.module.javalang"/>
+  </patternset>
+  
+  <path id="javalang.module.sourcepath">
+    <dirset dir="${module.javalang.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.javalang" depends="compile.module.javalang.production,compile.module.javalang.tests" description="Compile module JavaLang"/>
+  
+  <target name="compile.module.javalang.production" depends="register.custom.compilers" description="Compile module JavaLang; production classes">
+    <mkdir dir="${javalang.output.dir}"/>
+    <javac2 destdir="${javalang.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.javalang}/javac">
+      <compilerarg line="${compiler.args.javalang}"/>
+      <bootclasspath refid="javalang.module.bootclasspath"/>
+      <classpath refid="javalang.module.production.classpath"/>
+      <src refid="javalang.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.javalang"/>
+    </javac2>
+    
+    <copy todir="${javalang.output.dir}">
+      <fileset dir="${module.javalang.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.javalang.tests" depends="register.custom.compilers,compile.module.javalang.production" description="compile module JavaLang; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.javalang" description="cleanup module">
+    <delete dir="${javalang.output.dir}"/>
+    <delete dir="${javalang.testoutput.dir}"/>
+  </target>
+</project>
